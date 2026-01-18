@@ -33,37 +33,59 @@ setInterval(() => {
 tempLoad();
 
 const calculateTemp = () => {
-    const numberTemp = document.getElementById('temp').value;
-    // console.log(numberTemp);
+    const numberTemp = document.getElementById('temp').value.trim();
+    const resultContainer = document.getElementById('resultContainer');
+
+    // Clear previous result
+    resultContainer.innerHTML = "";
+
+    // 1️⃣ Empty input validation
+    if (numberTemp === "") {
+        resultContainer.innerHTML = "⚠️ Please enter a temperature value.";
+        resultContainer.style.color = "red";
+        return;
+    }
+
+    // 2️⃣ Numeric validation
+    if (isNaN(numberTemp)) {
+        resultContainer.innerHTML = "⚠️ Invalid input. Please enter a numeric value.";
+        resultContainer.style.color = "red";
+        return;
+    }
 
     const tempSelected = document.querySelector('#temp_diff');
     const valeTemp = temp_diff.options[tempSelected.selectedIndex].value;
-    // console.log(valeTemp);
 
+    const temperature = parseFloat(numberTemp);
 
-    // Convert temperature from Celcius to Fahrenheit
-    const celTOfah = (cel) => {
-        let fahrenheit = (cel * (9 / 5) + 32);
-        return fahrenheit;
+    // 3️⃣ Absolute zero validation
+    if (valeTemp === "cel" && temperature < -273.15) {
+        resultContainer.innerHTML = "⚠️ Temperature cannot be below -273.15°C.";
+        resultContainer.style.color = "red";
+        return;
     }
 
-    // Convert temperature from Fahrenheit to Celsius
-    const fahTOcel = (fehr) => {
-        let celsius = ((fehr - 32) * 5 / 9);
-        return celsius;
+    if (valeTemp === "fah" && temperature < -459.67) {
+        resultContainer.innerHTML = "⚠️ Temperature cannot be below -459.67°F.";
+        resultContainer.style.color = "red";
+        return;
     }
+
+    // Conversion functions
+    const celTOfah = (cel) => (cel * (9 / 5) + 32).toFixed(2);
+    const fahTOcel = (fehr) => ((fehr - 32) * 5 / 9).toFixed(2);
 
     let result;
-    if (valeTemp == "cel") {
-        result = celTOfah(numberTemp);
-        document.getElementById('resultContainer').innerHTML = `= ${result}°Fahrenheit`;
+
+    if (valeTemp === "cel") {
+        result = celTOfah(temperature);
+        resultContainer.innerHTML = `= ${result} °Fahrenheit`;
     } else {
-        result = fahTOcel(numberTemp);
-        document.getElementById('resultContainer').innerHTML = `= ${result}°Celsius`;
+        result = fahTOcel(temperature);
+        resultContainer.innerHTML = `= ${result} °Celsius`;
     }
 
-    setTimeout(() => {
-        window.location.reload();
-    }, 1500);
-}
+    resultContainer.style.color = "#00b894";
+};
+
 
