@@ -29,63 +29,55 @@ setInterval(() => {
     tempLoad();
 }, 5000);
 
-
 tempLoad();
 
 const calculateTemp = () => {
-    const numberTemp = document.getElementById('temp').value.trim();
+    const input = document.getElementById('temp').value.trim();
     const resultContainer = document.getElementById('resultContainer');
+    const unit = document.getElementById('temp_diff').value;
 
-    // Clear previous result
+    // Reset UI
     resultContainer.innerHTML = "";
+    resultContainer.style.color = "red";
 
-    // 1️⃣ Empty input validation
-    if (numberTemp === "") {
-        resultContainer.innerHTML = "⚠️ Please enter a temperature value.";
-        resultContainer.style.color = "red";
-        return;
+    // 🔹 Validation helpers
+    const showError = (msg) => {
+        resultContainer.innerHTML = msg;
+    };
+
+    // 🔹 1. Empty check
+    if (!input) return showError("⚠️ Please enter a temperature value.");
+
+    // 🔹 2. Numeric check
+    if (isNaN(input)) return showError("⚠️ Invalid input. Please enter a numeric value.");
+
+    const temp = parseFloat(input);
+
+    // 🔹 3. Absolute zero validation
+    const isBelowAbsoluteZero =
+        (unit === "cel" && temp < -273.15) ||
+        (unit === "fah" && temp < -459.67);
+
+    if (isBelowAbsoluteZero) {
+        return showError(
+            unit === "cel"
+                ? "⚠️ Temperature cannot be below -273.15°C."
+                : "⚠️ Temperature cannot be below -459.67°F."
+        );
     }
 
-    // 2️⃣ Numeric validation
-    if (isNaN(numberTemp)) {
-        resultContainer.innerHTML = "⚠️ Invalid input. Please enter a numeric value.";
-        resultContainer.style.color = "red";
-        return;
-    }
+    // 🔹 Conversion functions
+    const convert = {
+        cel: (t) => (t * 9 / 5 + 32).toFixed(2) + " °Fahrenheit",
+        fah: (t) => ((t - 32) * 5 / 9).toFixed(2) + " °Celsius"
+    };
 
-    const tempSelected = document.querySelector('#temp_diff');
-    const valeTemp = temp_diff.options[tempSelected.selectedIndex].value;
-
-    const temperature = parseFloat(numberTemp);
-
-    // 3️⃣ Absolute zero validation
-    if (valeTemp === "cel" && temperature < -273.15) {
-        resultContainer.innerHTML = "⚠️ Temperature cannot be below -273.15°C.";
-        resultContainer.style.color = "red";
-        return;
-    }
-
-    if (valeTemp === "fah" && temperature < -459.67) {
-        resultContainer.innerHTML = "⚠️ Temperature cannot be below -459.67°F.";
-        resultContainer.style.color = "red";
-        return;
-    }
-
-    // Conversion functions
-    const celTOfah = (cel) => (cel * (9 / 5) + 32).toFixed(2);
-    const fahTOcel = (fehr) => ((fehr - 32) * 5 / 9).toFixed(2);
-
-    let result;
-
-    if (valeTemp === "cel") {
-        result = celTOfah(temperature);
-        resultContainer.innerHTML = `= ${result} °Fahrenheit`;
-    } else {
-        result = fahTOcel(temperature);
-        resultContainer.innerHTML = `= ${result} °Celsius`;
-    }
+    // 🔹 Final result (clean + scalable)
+    const result = convert[unit](temp);
 
     resultContainer.style.color = "#00b894";
+    resultContainer.innerHTML = `= ${result}`;
 };
+
 
 
